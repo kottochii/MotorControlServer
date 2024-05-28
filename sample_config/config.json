@@ -1,0 +1,22 @@
+{
+    "mqtt":
+    {
+        "host":"mqtthost.local",
+        "port":1883,
+        "topic":"secsys/motors"
+    },
+    "pqxx":
+    {
+        "connection_string":"host=pqxx.local user=motor_server password='' dbname=motor_server"
+    },
+    "motors":{
+        "x0n7INomd2duCc9Ifm43WHc9eoZxkzQijo89K8xa":
+        {
+            "type":"garage_door"
+        }
+    },
+    "http":
+    {
+        "port":5555
+    }
+}
