@@ -9,15 +9,9 @@ using namespace secsys_server;
 
 void server_controller::on_mqtt_message_received(const std::string_view& msg, const std::string& topic)
 {
-    //std::cout << msg << "::" << topic << std::endl;
     if(msg.starts_with("state "))
     {
-        std::cout << "received status" << std::endl;
         auto vc = string_helpers::tokenize(msg, (std::string_view)" ");
-        for(auto& i : vc)
-        {
-            std::cout << i << std::endl;
-        }
         if(vc.size() != 4 && vc.size() != 5)
             return;
         std::string id = {vc[1].begin(), vc[1].end()};

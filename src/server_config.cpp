@@ -77,7 +77,7 @@ std::optional<server_config> server_config::from_file(const std::string& filenam
         {
             using namespace std::string_literals;
             // slug of the motor
-            std::cout << i->first << std::endl;
+            // std::cout << i->first << std::endl;
             // parse each motor configuration
             motor_config currmotor;
             // since this is a #define, second parameter looks weird but it is not a mistake
