@@ -11,5 +11,6 @@ namespace secsys_server
         crow::response get_by_id(const crow::request& req, uint32_t id);
         crow::response get_by_pin(const crow::request& req, const std::string& pin);
         crow::response register_card(const crow::request& req, const std::string& card_id);
+        crow::response whoami(const crow::request& req);
     };
 }

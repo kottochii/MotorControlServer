@@ -26,6 +26,9 @@ void user_routing::route()
     CROW_ROUTE(app_ref, "/users/register_card/<string>")
         .methods(crow::HTTPMethod::POST)
         (register_card);
+    CROW_ROUTE(app_ref, "/users/whoami")
+        .methods(crow::HTTPMethod::GET)
+        (whoami);
 }
 
 crow::response user_routing::get_by_id(const crow::request& req, uint32_t id)
@@ -64,4 +67,10 @@ crow::response user_routing::register_card(const crow::request& req, const std::
     return (crow::json::wvalue){
         {"response", *token}
     };
+}
+
+crow::response user_routing::whoami(const crow::request& req)
+{
+    check_authorisation(auth, req);
+    return get_by_id(req, auth);
 }
