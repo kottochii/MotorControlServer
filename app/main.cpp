@@ -94,6 +94,8 @@ int main()
 
     auto auth_gt_ftr = std::async(std::launch::async, &authorisation_controller::authorisations_go_through, auth_controller_v, std::ref(end_requested));
 
+    auto server_reporting_ftr = std::async(std::launch::async, &arduino_mqtt_controller::report_online, mqtt_controller, std::ref(end_requested));
+
     // wait for interruption
     while(!end_requested)
     {

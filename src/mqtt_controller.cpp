@@ -2,6 +2,7 @@
 #include "controllers/server_controller.hpp"
 #include "except.hpp"
 #include <iostream>
+#include <thread>
 
 using namespace secsys_server;
 
@@ -31,4 +32,15 @@ void arduino_mqtt_controller::on_message(const struct mosquitto_message* message
 void arduino_mqtt_controller::on_subscribe(int mid, int qos_client, const int* granted_qos)
 {
     subscribed = true;
+}
+
+void arduino_mqtt_controller::report_online(bool& end_requested)
+{
+    using namespace std::chrono_literals;
+    while(!end_requested)
+    {
+        std::string msg {"server ok"};
+        publish(NULL, get_topic().c_str(), msg.length(), msg.c_str());
+        std::this_thread::sleep_for(5s);
+    }
 }

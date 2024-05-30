@@ -19,6 +19,7 @@ namespace secsys_server
         void on_connect(int rc);
         void on_message(const struct mosquitto_message* message);
         void on_subscribe(int mid, int qos_client, const int* granted_qos);
+        void report_online(bool& end_requested);
         bool is_subscribed() const
         {
             return subscribed;
