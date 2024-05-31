@@ -19,6 +19,10 @@ namespace secsys_server
         std::string pqxx_connection_string;
         std::unordered_map <std::string, motor_config> motors;
         int         http_port;
+        std::optional<std::string>
+                    ssl_certificate;
+        std::optional<std::string>
+                    ssl_keyfile;
 
         static std::optional<server_config> from_file(const std::string& filename);
     };

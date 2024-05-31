@@ -6,7 +6,7 @@
 using namespace secsys_server;
 #define GET_PARAM_FROM_CONFIG(param_name_config, param_name_error, destination, original_ptree, T) \
 { \
-    auto param_pt = original_ptree.get_child_optional(param_name_config); \
+    GET_OPTIONAL(param_name_config, param_name_error, destination, original_ptree, T) \
     if(!param_pt.has_value()) \
     { \
         std::cerr << "Config parser error: \"" param_name_error "\" is not defined" << std::endl; \
@@ -21,6 +21,19 @@ using namespace secsys_server;
     } \
     destination = *param_value; \
 }
+#define GET_PARAM_FROM_CONFIG_OPTIONAL(param_name_config, param_name_error, destination, original_ptree, T) \
+{ \
+    GET_OPTIONAL(param_name_config, param_name_error, destination, original_ptree, T) \
+    if(param_pt.has_value()) \
+    { \
+        /* get the value out of it */ \
+        auto param_value = param_pt->get_value_optional<T>(); \
+        if(param_value.has_value()) \
+            destination = (*param_value); \
+    } \
+}
+#define GET_OPTIONAL(param_name_config, param_name_error, destination, original_ptree, T) \
+    auto param_pt = original_ptree.get_child_optional(param_name_config); \
 
 
 std::optional<server_config> server_config::from_file(const std::string& filename)
@@ -95,6 +108,10 @@ std::optional<server_config> server_config::from_file(const std::string& filenam
         }
         // http::port
         GET_PARAM_FROM_CONFIG("port", "http::port", cfg.http_port, (*http_pt), int);
+        // http::ssl_certfile
+        GET_PARAM_FROM_CONFIG_OPTIONAL("ssl_certfile", "http::ssl_certfile", cfg.ssl_certificate, (*http_pt), std::string);
+        // http::ssl_keyfile
+        GET_PARAM_FROM_CONFIG_OPTIONAL("ssl_keyfile", "http::ssl_keyfile", cfg.ssl_keyfile, (*http_pt), std::string);
     }
 
     return cfg;

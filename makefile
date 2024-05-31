@@ -9,6 +9,7 @@ build:
 		./app/*.cpp \
 		-I ./include/ \
 		-o ./out/server \
+		-lcrypto -lssl \
 		-lpqxx -lpq \
 		-lmosquittopp \
 		-std=c++23 \

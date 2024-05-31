@@ -1,3 +1,6 @@
+#ifdef SSL_REQUIRED
+#define CROW_ENABLE_SSL
+#endif
 #include <iostream>
 #include "signal_handler.hpp"
 #include "controllers/mqtt_controller.hpp"
@@ -80,6 +83,20 @@ int main()
     // run HTTP and MQTT
     mqtt_controller->loop_start();
     auto& app = http_controller_v->get_app();
+    #ifdef SSL_REQUIRED
+    if(config->ssl_certificate.has_value() && config->ssl_keyfile.has_value())
+    {
+        //asio::ssl::context ctx(asio::ssl::context::sslv23);
+        app.ssl_file(*config->ssl_certificate, *config->ssl_keyfile);
+        //app.ssl(ctx);
+    }
+    else 
+    {
+        std::cerr << "SSL certificate file or keyfile is not found." << std::endl << 
+        "Try either specifying them in config.json or recompiling the program without -DSSL_REQUIRED." << std::endl;
+        exit(0);
+    }
+    #endif
     auto future = app.port(config->http_port).signal_clear().run_async();
 
     // motor controller async
