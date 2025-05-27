@@ -7,15 +7,29 @@ namespace secsys_server
     class server_controller;
     struct http_controller
     {
+        struct middleware_CORP
+        {
+            struct context 
+            {};
+
+            void before_handle(crow::request& req, crow::response& res, context& ctx){}
+
+            void after_handle(crow::request& req, crow::response& res, context& ctx)
+            {
+                res.add_header("Cross-Origin-Resource-Policy", "cross-origin");
+            }
+        };
+
+
         http_controller(server_controller& _server_controller);
         
-        crow::SimpleApp& get_app()
+        crow::App<middleware_CORP>& get_app()
         {
             return app;
         }
 
         private:
         server_controller& _server_controller;
-        crow::SimpleApp app;
+        crow::App<middleware_CORP> app;
     };
 }
