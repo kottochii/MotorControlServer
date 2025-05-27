@@ -17,6 +17,7 @@ namespace secsys_server
             void after_handle(crow::request& req, crow::response& res, context& ctx)
             {
                 res.add_header("Cross-Origin-Resource-Policy", "cross-origin");
+                res.add_header("Access-Control-Allow-Origin", "*");
             }
         };
 
