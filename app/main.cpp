@@ -13,6 +13,7 @@
 #include "routing/motor_routing.hpp"
 #include "routing/user_routing.hpp"
 #include "routing/auth_routing.hpp"
+#include "routing/maintenance_routing.hpp"
 #include "config/server_config.hpp"
 #include <pqxx/pqxx>
 
@@ -78,6 +79,7 @@ int main()
     motor_routing::route();
     user_routing::route();
     auth_routing::route();
+    maintenance_routing::route();
 
 
     // run HTTP and MQTT
