@@ -50,5 +50,4 @@ For each motor, there should be a configuration for a single motor. At this poin
 
 ## Found issues
 
-* concurrency breaks when multiple transactions are using the same connection (fix either by using multiple connections, or by using single connections and semaphore/mutex)
 * there is no stable interface for finding the changes in motors' state -> cannot send updates; instead the status is sent every n seconds (fix by changing the logic of the DB access)

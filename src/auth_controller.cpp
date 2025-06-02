@@ -1,6 +1,7 @@
 #include "controllers/auth_controller.hpp"
 #include "controllers/server_controller.hpp"
 #include "controllers/motor_updates_subscriptions_controller.hpp"
+#include "controllers/db_access_controller.hpp"
 #include "helpers/strings.hpp"
 #include <pqxx/pqxx>
 #include <chrono>
@@ -13,7 +14,9 @@ void authorisation_controller::authorisations_go_through(bool& end_requested)
 {
     while(!end_requested)
     {
-        pqxx::work w(*_controller.get_pqxx_connection());
+        auto db_access = _controller.get_db_access_controller();
+        auto cnxn = db_access->get_connection();
+        pqxx::work w(*cnxn);
         auto result = w.exec("DELETE FROM authorisations WHERE expires < NOW() RETURNING id");
         w.commit();
         // 
@@ -29,7 +32,8 @@ void authorisation_controller::authorisations_go_through(bool& end_requested)
 
 std::optional<authorisation> authorisation_controller::get_authorisation_by_id(const std::string& id)
 {
-    auto cnxn = _controller.get_pqxx_connection();
+    auto db_access = _controller.get_db_access_controller();
+    auto cnxn = db_access->get_connection();
     pqxx::work w(*cnxn);
     auto res = w.exec("SELECT id, \"user\", app, extract(epoch from expires)::int as expires FROM authorisations WHERE id=$1", pqxx::params{id});
     return from_result(res);
@@ -67,7 +71,8 @@ std::optional<authorisation> authorisation_controller::create_authorisation(cons
         *length += time(NULL);
     authorisation _to_ret{token, user.get_id(), app.get_id(), length};
     // prepare everything for commit
-    auto cnxn = _controller.get_pqxx_connection();
+    auto db_access = _controller.get_db_access_controller();
+    auto cnxn = db_access->get_connection();
     pqxx::work w(*cnxn);
     auto res = w.exec("INSERT INTO public.authorisations(id, \"user\", app, expires) VALUES ($1, $2, $3, (to_timestamp($4)));", pqxx::params{_to_ret.get_id(), _to_ret.get_user_id(), _to_ret.get_app_id(), _to_ret.get_expires()});
     w.commit();

@@ -55,10 +55,6 @@ void server_controller::set_http_controller(std::shared_ptr<http_controller> htt
 {
     _http_controller_ref = http_init;
 }
-void server_controller::set_pqxx_connection(std::shared_ptr<pqxx::connection> ref)
-{
-    _pqxx_connection_ref = ref;
-}
 void server_controller::set_user_controller(std::shared_ptr<user_controller> ref)
 {
     _user_controller = ref;
@@ -79,6 +75,10 @@ void server_controller::set_motor_updates_subscriptions_controller(std::shared_p
 {
     _motor_updates_subscriptions_controller = ref;
 }
+void server_controller::set_db_access_controller(std::shared_ptr<db_access_controller> ref)
+{
+    _db_access_controller = ref;
+}
 
 
 std::shared_ptr<arduino_mqtt_controller> server_controller::get_mqtt_controller()
@@ -88,10 +88,6 @@ std::shared_ptr<arduino_mqtt_controller> server_controller::get_mqtt_controller(
 std::shared_ptr<http_controller> server_controller::get_http_controller()
 {
     return _http_controller_ref;
-}
-std::shared_ptr<pqxx::connection> server_controller::get_pqxx_connection()
-{
-    return _pqxx_connection_ref;
 }
 std::shared_ptr<user_controller> server_controller::get_user_controller()
 {
@@ -112,4 +108,8 @@ std::shared_ptr<app_controller> server_controller::get_app_controller()
 std::shared_ptr<motor_updates_subscriptions_controller> server_controller::get_motor_updates_subscriptions_controller()
 {
     return _motor_updates_subscriptions_controller;
+}
+std::shared_ptr<db_access_controller> server_controller::get_db_access_controller()
+{
+    return _db_access_controller;
 }

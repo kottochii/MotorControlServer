@@ -11,6 +11,7 @@
 #include "controllers/auth_controller.hpp"
 #include "controllers/app_controller.hpp"
 #include "controllers/motor_updates_subscriptions_controller.hpp"
+#include "controllers/db_access_controller.hpp"
 #include "routing/motor_routing.hpp"
 #include "routing/motor_updates_routing.hpp"
 #include "routing/user_routing.hpp"
@@ -57,8 +58,8 @@ int main()
     // tie it to the server controller
     srv_controller.set_http_controller(http_controller_v);
     // create a PQXX connection and associate it with the server
-    auto pqxx_connection = std::make_shared<pqxx::connection>(config->pqxx_connection_string);
-    srv_controller.set_pqxx_connection(pqxx_connection);
+    auto db_access_controller_v = std::make_shared<db_access_controller>(config->pqxx_connection_string);
+    srv_controller.set_db_access_controller(db_access_controller_v);
     // create a user controller
     auto user_controller_v = std::make_shared<user_controller>(srv_controller);
     // tie to the server

@@ -1,5 +1,6 @@
 #include "controllers/user_controller.hpp"
 #include "controllers/server_controller.hpp"
+#include "controllers/db_access_controller.hpp"
 #include "helpers/strings.hpp"
 
 using namespace secsys_server;
@@ -18,7 +19,8 @@ user_controller::user_controller(server_controller& server_controller)
 
 std::optional<user> user_controller::get_by_id(uint32_t id)
 {
-    auto cnxn = _controller.get_pqxx_connection();
+    auto db_access = _controller.get_db_access_controller();
+    auto cnxn = db_access->get_connection();
     pqxx::work txn(*cnxn);
     auto res = txn.exec("SELECT id, name, pin FROM users WHERE id=$1", pqxx::params{id});
     return user_from_result(res);
@@ -26,7 +28,8 @@ std::optional<user> user_controller::get_by_id(uint32_t id)
 
 std::optional<user> user_controller::get_by_pin(const std::string& pin)
 {
-    auto cnxn = _controller.get_pqxx_connection();
+    auto db_access = _controller.get_db_access_controller();
+    auto cnxn = db_access->get_connection();
     pqxx::work txn(*cnxn);
     auto res = txn.exec("SELECT id, name, pin FROM users WHERE pin=$1", pqxx::params{pin});
     return user_from_result(res);
@@ -34,7 +37,8 @@ std::optional<user> user_controller::get_by_pin(const std::string& pin)
 
 std::optional<user> user_controller::get_by_card(const std::string& card_id, const std::string& data)
 {
-    auto cnxn = _controller.get_pqxx_connection();
+    auto db_access = _controller.get_db_access_controller();
+    auto cnxn = db_access->get_connection();
     pqxx::work txn(*cnxn);
     auto res = txn.exec("SELECT u.id as \"id\", u.name as \"name\", u.pin as pin FROM users u JOIN cards ON cards.user_id=u.id AND cards.id=$1 AND cards.token=$2", pqxx::params{card_id, data});
     return user_from_result(res);
@@ -58,7 +62,8 @@ std::optional<std::string> user_controller::create_card(const std::string& card_
         if(auth != std::nullopt)
             return std::nullopt;
     }
-    auto cnxn = _controller.get_pqxx_connection();
+    auto db_access = _controller.get_db_access_controller();
+    auto cnxn = db_access->get_connection();
     pqxx::work txn(*cnxn);
     auto res = txn.exec("INSERT INTO public.cards(id, token, user_id)	VALUES ($1, $2, $3);", pqxx::params{card_id, token, id});
     txn.commit();
