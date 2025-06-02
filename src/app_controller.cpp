@@ -21,12 +21,6 @@ std::optional<app> app_controller::get_by_id(uint32_t id)
 {
     auto cnxn = _controller.get_pqxx_connection();
     pqxx::work txn(*cnxn);
-    static bool prepped = false;
-    if(!prepped)
-    {
-        prepped = true;
-        cnxn->prepare("app_controller_get_by_id_prep", "SELECT id, public_key, login_max_length FROM public.apps WHERE id=$1");
-    }
-    auto res = txn.exec_prepared("app_controller_get_by_id_prep", id);
+    auto res = txn.exec("SELECT id, public_key, login_max_length FROM public.apps WHERE id=$1", pqxx::params {id});
     return app_from_result(res);
 }

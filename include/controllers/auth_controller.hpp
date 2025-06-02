@@ -16,7 +16,8 @@ namespace secsys_server
             : _controller(controller) 
             {}
         /**
-         * Calls of old authorisations
+         * Gets rid of old authorisations
+         * Also sends websocket the signal to stop the 
         */
         void authorisations_go_through(bool& end_requested);
         std::optional<authorisation> get_authorisation_by_id(const std::string& id);

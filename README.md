@@ -2,11 +2,15 @@
 
 Initially created to be used with motors that communicate via the use of MQTT protocol.
 
+The server acts as an observer after the motors connected to the given MQTT channel. The server sends requests to the MQTT channel to command or ask about the status of the motors. The motors (their Arduino-like boards) read the commands and act accordingly, also updating the server about the status.
+
+The clients (that can connect over REST and Websockets) can log in with pin or cards. After login, they create a websocket connection that lasts as long as their token does. The server will drop websockets connections with expired token every 1 second. The clients connected on the websocket also receive updates about the connected motors. Over REST, they also can command motors.
+
 The Arduino sketch can be found at https://github.com/kottochii/ArduinoMQTTServo/
 
 ## Requirements
 * A running Postgres server where [the tables will be stored](#database-structure)
-* [libPQXX](https://github.com/jtv/libpqxx)
+* [libPQXX](https://github.com/jtv/libpqxx) (>=7.10.0)
 * A running MQTT server
 * [MosquittoPP](https://github.com/eclipse/mosquitto) (particularly the client library)
 * [boost::property_tree](https://github.com/boostorg/property_tree) for parsing the configuration file
@@ -43,3 +47,8 @@ For each motor, there should be a configuration for a single motor. At this poin
 #### `http` group
 `ssl_cert` - path to the SSL certificate to run HTTPS server
 `ssl_key` - path to the SSL key to run HTTPS server
+
+## Found issues
+
+* concurrency breaks when multiple transactions are using the same connection (fix either by using multiple connections, or by using single connections and semaphore/mutex)
+* there is no stable interface for finding the changes in motors' state -> cannot send updates; instead the status is sent every n seconds (fix by changing the logic of the DB access)

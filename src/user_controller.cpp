@@ -20,13 +20,7 @@ std::optional<user> user_controller::get_by_id(uint32_t id)
 {
     auto cnxn = _controller.get_pqxx_connection();
     pqxx::work txn(*cnxn);
-    static bool prepped = false;
-    if(!prepped)
-    {
-        prepped = true;
-        cnxn->prepare("user_controller_get_by_id_prep", "SELECT id, name, pin FROM users WHERE id=$1");
-    }
-    auto res = txn.exec_prepared("user_controller_get_by_id_prep", id);
+    auto res = txn.exec("SELECT id, name, pin FROM users WHERE id=$1", pqxx::params{id});
     return user_from_result(res);
 }
 
@@ -34,13 +28,7 @@ std::optional<user> user_controller::get_by_pin(const std::string& pin)
 {
     auto cnxn = _controller.get_pqxx_connection();
     pqxx::work txn(*cnxn);
-    static bool prepped = false;
-    if(!prepped)
-    {
-        prepped = true;
-        cnxn->prepare("user_controller_get_by_pin_prep", "SELECT id, name, pin FROM users WHERE pin=$1");
-    }
-    auto res = txn.exec_prepared("user_controller_get_by_pin_prep", pin);
+    auto res = txn.exec("SELECT id, name, pin FROM users WHERE pin=$1", pqxx::params{pin});
     return user_from_result(res);
 }
 
@@ -48,13 +36,7 @@ std::optional<user> user_controller::get_by_card(const std::string& card_id, con
 {
     auto cnxn = _controller.get_pqxx_connection();
     pqxx::work txn(*cnxn);
-    static bool prepped = false;
-    if(!prepped)
-    {
-        prepped = true;
-        cnxn->prepare("user_controller_get_by_card_prep", "SELECT u.id as \"id\", u.name as \"name\", u.pin as pin FROM users u JOIN cards ON cards.user_id=u.id AND cards.id=$1 AND cards.token=$2");
-    }
-    auto res = txn.exec_prepared("user_controller_get_by_card_prep", card_id, data);
+    auto res = txn.exec("SELECT u.id as \"id\", u.name as \"name\", u.pin as pin FROM users u JOIN cards ON cards.user_id=u.id AND cards.id=$1 AND cards.token=$2", pqxx::params{card_id, data});
     return user_from_result(res);
 }
 
@@ -78,13 +60,7 @@ std::optional<std::string> user_controller::create_card(const std::string& card_
     }
     auto cnxn = _controller.get_pqxx_connection();
     pqxx::work txn(*cnxn);
-    static bool prepped = false;
-    if(!prepped)
-    {
-        prepped = true;
-        cnxn->prepare("user_controller_create_card_prep", "INSERT INTO public.cards(id, token, user_id)	VALUES ($1, $2, $3);");
-    }
-    auto res = txn.exec_prepared("user_controller_create_card_prep", card_id, token, id);
+    auto res = txn.exec("INSERT INTO public.cards(id, token, user_id)	VALUES ($1, $2, $3);", pqxx::params{card_id, token, id});
     txn.commit();
     if(res.affected_rows() == 1)
         return token;

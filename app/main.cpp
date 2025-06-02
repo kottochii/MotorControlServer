@@ -10,7 +10,9 @@
 #include "controllers/motor_controller.hpp"
 #include "controllers/auth_controller.hpp"
 #include "controllers/app_controller.hpp"
+#include "controllers/motor_updates_subscriptions_controller.hpp"
 #include "routing/motor_routing.hpp"
+#include "routing/motor_updates_routing.hpp"
 #include "routing/user_routing.hpp"
 #include "routing/auth_routing.hpp"
 #include "routing/maintenance_routing.hpp"
@@ -75,11 +77,17 @@ int main()
     // tie to the server
     srv_controller.set_app_controller(app_controller_v);
 
+    // create motor updates controller
+    auto motor_updates_controller_v = std::make_shared<motor_updates_subscriptions_controller>(srv_controller);
+    // tie to the server
+    srv_controller.set_motor_updates_subscriptions_controller(motor_updates_controller_v);
+
     // set up the router
     motor_routing::route();
     user_routing::route();
     auth_routing::route();
     maintenance_routing::route();
+    motor_updates_routing::route();
 
 
     // run HTTP and MQTT
@@ -102,11 +110,20 @@ int main()
     auto future = app.port(config->http_port).signal_clear().run_async();
 
     // motor controller async
-    auto observer_future = std::async(std::launch::async, [&motor_controller_v](){
+    auto observer_future = std::async(std::launch::async, [&motor_controller_v, &motor_updates_controller_v](){
         using namespace std::chrono_literals;
         while(!end_requested)
         {
             motor_controller_v->motors_go_through();
+            
+            // routine for 5 iterations (5 seconds)
+            static int counter_5s = 0;
+            if(counter_5s++ > 5)
+            {
+                counter_5s = 0;
+                motor_updates_controller_v->status_updates_sendall();
+            }
+            
             std::this_thread::sleep_for(1s);
         }
     });

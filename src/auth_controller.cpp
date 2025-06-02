@@ -1,5 +1,6 @@
 #include "controllers/auth_controller.hpp"
 #include "controllers/server_controller.hpp"
+#include "controllers/motor_updates_subscriptions_controller.hpp"
 #include "helpers/strings.hpp"
 #include <pqxx/pqxx>
 #include <chrono>
@@ -13,8 +14,15 @@ void authorisation_controller::authorisations_go_through(bool& end_requested)
     while(!end_requested)
     {
         pqxx::work w(*_controller.get_pqxx_connection());
-        w.exec("DELETE FROM authorisations WHERE expires < NOW()");
+        auto result = w.exec("DELETE FROM authorisations WHERE expires < NOW() RETURNING id");
         w.commit();
+        // 
+        // for(auto row = result.begin(); row != result.end(); row++){}
+        for(auto row : result)
+        {
+            auto user_id = row["id"].as<std::string>();
+            _controller.get_motor_updates_subscriptions_controller()->unconnect_by_token(user_id);
+        }
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 }
@@ -23,13 +31,7 @@ std::optional<authorisation> authorisation_controller::get_authorisation_by_id(c
 {
     auto cnxn = _controller.get_pqxx_connection();
     pqxx::work w(*cnxn);
-    static bool prepped = false;
-    if(!prepped)
-    {
-        prepped = true;
-        cnxn->prepare("authorisation_controller_get_authorisation_by_id", "SELECT id, \"user\", app, extract(epoch from expires)::int as expires FROM authorisations WHERE id=$1");
-    }
-    auto res = w.exec_prepared("authorisation_controller_get_authorisation_by_id", id);
+    auto res = w.exec("SELECT id, \"user\", app, extract(epoch from expires)::int as expires FROM authorisations WHERE id=$1", pqxx::params{id});
     return from_result(res);
 }
 
@@ -67,13 +69,7 @@ std::optional<authorisation> authorisation_controller::create_authorisation(cons
     // prepare everything for commit
     auto cnxn = _controller.get_pqxx_connection();
     pqxx::work w(*cnxn);
-    static bool prepped = false;
-    if(!prepped)
-    {
-        prepped = true;
-        cnxn->prepare("authorisation_controller_create_authorisation", "INSERT INTO public.authorisations(id, \"user\", app, expires) VALUES ($1, $2, $3, (to_timestamp($4)));");
-    }
-    auto res = w.exec_prepared("authorisation_controller_create_authorisation", _to_ret.get_id(), _to_ret.get_user_id(), _to_ret.get_app_id(), _to_ret.get_expires());
+    auto res = w.exec("INSERT INTO public.authorisations(id, \"user\", app, expires) VALUES ($1, $2, $3, (to_timestamp($4)));", pqxx::params{_to_ret.get_id(), _to_ret.get_user_id(), _to_ret.get_app_id(), _to_ret.get_expires()});
     w.commit();
     if(res.affected_rows() == 1)
         return _to_ret;

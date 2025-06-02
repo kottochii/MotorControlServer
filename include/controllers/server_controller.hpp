@@ -13,6 +13,7 @@ namespace secsys_server
     class motor_controller;
     class authorisation_controller;
     class app_controller;
+    class motor_updates_subscriptions_controller;
     class server_controller
     {
         std::shared_ptr<arduino_mqtt_controller> _mqtt_controller_ref;
@@ -22,6 +23,7 @@ namespace secsys_server
         std::shared_ptr<motor_controller> _motor_controller;
         std::shared_ptr<authorisation_controller> _auth_controller;
         std::shared_ptr<app_controller> _app_controller;
+        std::shared_ptr<motor_updates_subscriptions_controller> _motor_updates_subscriptions_controller;
         public:
         /**
          * Should be called by mosquitto message handler
@@ -36,6 +38,7 @@ namespace secsys_server
         void set_motor_controller(std::shared_ptr<motor_controller> ref);
         void set_auth_controller(std::shared_ptr<authorisation_controller> ref);
         void set_app_controller(std::shared_ptr<app_controller> ref);
+        void set_motor_updates_subscriptions_controller(std::shared_ptr<motor_updates_subscriptions_controller> ref);
 
         std::shared_ptr<arduino_mqtt_controller> get_mqtt_controller();
         std::shared_ptr<http_controller> get_http_controller();
@@ -44,5 +47,6 @@ namespace secsys_server
         std::shared_ptr<motor_controller> get_motor_controller();
         std::shared_ptr<authorisation_controller> get_auth_controller();
         std::shared_ptr<app_controller> get_app_controller();
+        std::shared_ptr<motor_updates_subscriptions_controller> get_motor_updates_subscriptions_controller();
     };
 }

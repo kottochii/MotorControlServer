@@ -3,6 +3,7 @@
 #include "controllers/http_controller.hpp"
 #include "controllers/motor_controller.hpp"
 #include "controllers/app_controller.hpp"
+#include "controllers/motor_updates_subscriptions_controller.hpp"
 #include "helpers/strings.hpp"
 
 using namespace secsys_server;
@@ -74,6 +75,10 @@ void server_controller::set_app_controller(std::shared_ptr<app_controller> ref)
 {
     _app_controller = ref;
 }
+void server_controller::set_motor_updates_subscriptions_controller(std::shared_ptr<motor_updates_subscriptions_controller> ref)
+{
+    _motor_updates_subscriptions_controller = ref;
+}
 
 
 std::shared_ptr<arduino_mqtt_controller> server_controller::get_mqtt_controller()
@@ -103,4 +108,8 @@ std::shared_ptr<authorisation_controller> server_controller::get_auth_controller
 std::shared_ptr<app_controller> server_controller::get_app_controller()
 {
     return _app_controller;
+}
+std::shared_ptr<motor_updates_subscriptions_controller> server_controller::get_motor_updates_subscriptions_controller()
+{
+    return _motor_updates_subscriptions_controller;
 }
