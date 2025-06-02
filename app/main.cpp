@@ -118,7 +118,7 @@ int main()
             
             // routine for 5 iterations (5 seconds)
             static int counter_5s = 0;
-            if(counter_5s++ > 5)
+            if(++counter_5s >= 5)
             {
                 counter_5s = 0;
                 motor_updates_controller_v->status_updates_sendall();
