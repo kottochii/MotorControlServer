@@ -6,6 +6,8 @@ The server acts as an observer after the motors connected to the given MQTT chan
 
 The clients (that can connect over REST and Websockets) can log in with pin or cards. After login, they create a websocket connection that lasts as long as their token does. The server will drop websockets connections with expired token every 1 second. The clients connected on the websocket also receive updates about the connected motors. Over REST, they also can command motors.
 
+The client for this server can be found at https://github.com/kottochii/MotorControlClient
+
 The Arduino sketch can be found at https://github.com/kottochii/ArduinoMQTTServo/
 
 ## Requirements
